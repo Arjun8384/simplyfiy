@@ -5,11 +5,20 @@ import {
 createContext,
 useContext,
 useEffect,
-useState
+useState,
+useCallback,
 } from "react";
 
 
-interface User{
+import {useCartStore} from "@/store/cart-store";
+
+import {useWishlistStore} from "@/store/wishlist-store";
+
+
+
+interface User {
+
+id:string;
 
 name:string;
 
@@ -21,15 +30,24 @@ role:string;
 
 
 
-interface AuthContextType{
 
-user:User|null;
+interface AuthContextType {
+
+
+user:User | null;
 
 loading:boolean;
 
+
 logout:()=>Promise<void>;
 
+
+refetch:()=>Promise<void>;
+
+
+
 }
+
 
 
 
@@ -38,19 +56,23 @@ createContext<AuthContextType | null>(null);
 
 
 
+
+
+
 export function AuthProvider({
 
-children
+children,
 
 }:{
 
-children:React.ReactNode
+children:React.ReactNode;
 
 }){
 
 
+
 const [user,setUser] =
-useState<User|null>(null);
+useState<User | null>(null);
 
 
 
@@ -61,21 +83,28 @@ useState(true);
 
 
 
-useEffect(()=>{
 
 
-async function checkAuth(){
+
+const checkAuth = useCallback(async()=>{
 
 
 try{
 
 
 const res =
-await fetch("/api/auth/me",{
+await fetch(
+"/api/auth/me",
+{
+
+cache:"no-store",
 
 credentials:"include"
 
-});
+}
+
+);
+
 
 
 const data =
@@ -83,34 +112,66 @@ await res.json();
 
 
 
-if(data.success){
+
+
+if(data.success && data.user){
+
+
 
 setUser(data.user);
 
-}
+
+
+useCartStore
+.getState()
+.setUserCart(data.user.email);
+
+
+
+useWishlistStore
+.getState()
+.setUserWishlist(data.user.email);
 
 
 
 }
 
-catch{
+
+else{
+
 
 setUser(null);
 
+
+
 }
 
+
+
+}
+
+catch(error){
+
+
+console.log(
+"Auth check failed",
+error
+);
+
+
+setUser(null);
+
+
+}
 
 finally{
 
+
 setLoading(false);
 
-}
-
 
 }
 
-
-checkAuth();
 
 
 },[]);
@@ -119,26 +180,99 @@ checkAuth();
 
 
 
-async function logout(){
 
 
-await fetch("/api/auth/logout",{
+
+
+useEffect(()=>{
+
+
+checkAuth();
+
+
+},[checkAuth]);
+
+
+
+
+
+
+
+
+
+const refetch =
+useCallback(async()=>{
+
+
+await checkAuth();
+
+
+},[checkAuth]);
+
+
+
+
+
+
+
+
+
+
+
+const logout =
+async()=>{
+
+
+
+await fetch(
+"/api/auth/logout",
+{
 
 method:"POST",
 
 credentials:"include"
 
-});
+}
+
+);
+
+
+
+
+
+// only remove active session
+// DO NOT delete cart/wishlist data
 
 
 setUser(null);
 
 
-}
+
+useCartStore
+.getState()
+.logoutCart();
+
+
+
+useWishlistStore
+.getState()
+.logoutWishlist();
+
+
+
+};
+
+
+
+
+
+
+
 
 
 
 return (
+
 
 <AuthContext.Provider
 
@@ -148,7 +282,9 @@ user,
 
 loading,
 
-logout
+logout,
+
+refetch
 
 }}
 
@@ -161,11 +297,10 @@ logout
 </AuthContext.Provider>
 
 
-)
 
+);
 
 }
-
 
 
 
@@ -180,9 +315,11 @@ useContext(AuthContext);
 
 if(!context){
 
+
 throw new Error(
 "useAuth must be inside AuthProvider"
 );
+
 
 }
 

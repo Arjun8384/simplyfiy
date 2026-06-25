@@ -5,345 +5,399 @@ import { Product } from "@/types/product";
 
 
 export interface CartItem extends Product {
-
   quantity:number;
-
 }
-
 
 
 interface CartStore {
 
-  items:CartItem[];
+items:CartItem[];
 
-  addItem:(product:Product)=>void;
-
-  removeItem:(_id:string)=>void;
-
-  increaseQuantity:(_id:string)=>void;
-
-  decreaseQuantity:(_id:string)=>void;
-
-  updateQuantity:(_id:string, quantity:number)=>void;
-
-  clearCart:()=>void;
-
-}
+userEmail:string | null;
 
 
+setUserCart:(email:string)=>void;
+
+logoutCart:()=>void;
 
 
-function getCartKey(){
+addItem:(product:Product)=>void;
 
-if(typeof window === "undefined"){
+removeItem:(id:string)=>void;
 
-return "guest-cart";
+increaseQuantity:(id:string)=>void;
 
-}
+decreaseQuantity:(id:string)=>void;
 
-
-const user =
-localStorage.getItem("user");
-
-
-
-if(!user){
-
-return "guest-cart";
+clearCart:()=>void;
 
 }
 
 
 
-const parsed =
-JSON.parse(user);
-
-
-
-return `cart-${parsed.email}`;
-
-}
-
-
-
-
-
-export const useCartStore =
-create<CartStore>()(
+export const useCartStore = create<CartStore>()(
 
 persist(
 
-(set)=>(
-
-{
+(set,get)=>({
 
 
 items:[],
 
+userEmail:null,
 
 
-addItem:(product)=>
 
-set((state)=>{
+setUserCart:(email)=>{
 
 
-const existing =
-state.items.find(
+const saved =
+localStorage.getItem(
+`simplyfiy-cart-${email}`
+);
 
-(item)=>
 
-item._id === product._id
+set({
+
+userEmail:email,
+
+items:saved
+?
+JSON.parse(saved)
+:
+[]
+
+});
+
+
+},
+
+
+
+
+logoutCart:()=>{
+
+
+set({
+
+items:[],
+
+userEmail:null
+
+});
+
+
+},
+
+
+
+
+
+addItem:(product)=>{
+
+
+const {
+items,
+userEmail
+}=get();
+
+
+
+if(!userEmail)
+return;
+
+
+
+const exists =
+items.find(
+item=>item._id===product._id
+);
+
+
+
+const updated = exists
+
+?
+
+items.map(item=>
+
+item._id===product._id
+
+?
+
+{
+...item,
+quantity:item.quantity+1
+}
+
+:
+
+item
+
+)
+
+
+:
+
+[
+
+...items,
+
+{
+...product,
+quantity:1
+}
+
+];
+
+
+
+localStorage.setItem(
+
+`simplyfiy-cart-${userEmail}`,
+
+JSON.stringify(updated)
 
 );
 
 
 
-if(existing){
+set({
+
+items:updated
+
+});
 
 
-return {
-
-items:
-
-state.items.map(
-
-(item)=>
-
-item._id === product._id
-
-?
-
-{
-
-...item,
-
-quantity:item.quantity+1
-
-}
-
-:
-
-item
-
-
-)
-
-};
-
-
-}
-
-
-
-return {
-
-items:[
-
-...state.items,
-
-{
-
-...product,
-
-quantity:1
-
-}
-
-]
-
-};
-
-
-}),
+},
 
 
 
 
 
-removeItem:(_id)=>
 
-set((state)=>(
+removeItem:(id)=>{
 
 
-{
+const {
+userEmail
+}=get();
 
-items:
 
+
+if(!userEmail)
+return;
+
+
+
+set(state=>{
+
+
+const updated =
 state.items.filter(
-
-(item)=>
-
-item._id !== _id
-
-)
-
-}
-
-
-)),
+item=>item._id!==id
+);
 
 
 
+localStorage.setItem(
+
+`simplyfiy-cart-${userEmail}`,
+
+JSON.stringify(updated)
+
+);
 
 
-increaseQuantity:(_id)=>
 
-set((state)=>(
+return {
+
+items:updated
+
+};
 
 
-{
+});
 
-items:
 
-state.items.map(
+},
 
-(item)=>
 
-item._id === _id
+
+
+
+
+increaseQuantity:(id)=>{
+
+
+const {
+userEmail
+}=get();
+
+
+
+if(!userEmail)
+return;
+
+
+
+set(state=>{
+
+
+const updated =
+state.items.map(item=>
+
+item._id===id
 
 ?
 
 {
-
 ...item,
-
 quantity:item.quantity+1
-
 }
 
 :
 
 item
 
-)
-
-}
-
-
-)),
+);
 
 
 
+localStorage.setItem(
+
+`simplyfiy-cart-${userEmail}`,
+
+JSON.stringify(updated)
+
+);
+
+
+
+return {
+
+items:updated
+
+};
+
+
+});
+
+
+},
 
 
 
 
-decreaseQuantity:(_id)=>
-
-set((state)=>(
 
 
-{
+decreaseQuantity:(id)=>{
 
-items:
 
+const {
+userEmail
+}=get();
+
+
+
+if(!userEmail)
+return;
+
+
+
+set(state=>{
+
+
+const updated =
 state.items
 
-.map(
+.map(item=>
 
-(item)=>
-
-item._id === _id
+item._id===id
 
 ?
 
 {
-
 ...item,
-
 quantity:item.quantity-1
-
 }
 
 :
 
 item
-
 
 )
 
 .filter(
+item=>item.quantity>0
+);
 
-(item)=>
 
-item.quantity>0
 
-)
+localStorage.setItem(
+
+`simplyfiy-cart-${userEmail}`,
+
+JSON.stringify(updated)
+
+);
+
+
+
+return {
+
+items:updated
+
+};
+
+
+});
+
+
+},
+
+
+
+
+
+
+clearCart:()=>{
+
+
+const {
+userEmail
+}=get();
+
+
+
+if(userEmail){
+
+localStorage.removeItem(
+
+`simplyfiy-cart-${userEmail}`
+
+);
 
 }
-
-
-)),
-
-
-
-
-
-
-
-updateQuantity:(_id,quantity)=>
-
-set((state)=>(
-
-
-{
-
-items:
-
-state.items.map(
-
-(item)=>
-
-item._id === _id
-
-?
-
-{
-
-...item,
-
-quantity:Math.max(1,quantity)
-
-}
-
-:
-
-item
-
-
-)
-
-}
-
-
-)),
-
-
-
-
-
-
-
-clearCart:()=>
 
 
 set({
 
 items:[]
 
-})
-
+});
 
 
 }
 
-),
 
 
+}),
 
 {
 
-name:getCartKey()
+
+name:"simplyfiy-cart"
 
 }
 

@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useCartStore } from "@/store/cart-store";
+import { useWishlistStore } from "@/store/wishlist-store";
 
 // import { useRouter } from "next/navigation";
 
@@ -54,10 +56,23 @@ const data =
 await res.json();
 
 if(data.success){
+const cart =
+useCartStore.getState();
 
 
-console.log("LOGIN RESPONSE", data);
+const wishlist =
+useWishlistStore.getState();
 
+
+
+cart.setUserCart(
+data.user.email
+);
+
+
+wishlist.setUserWishlist(
+data.user.email
+);
 
 
 if(data.user.role === "admin"){

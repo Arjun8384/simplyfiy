@@ -1,36 +1,140 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Simplyfiy Toy Store
 
-## Getting Started
+A full-stack toy store e-commerce application built with Next.js, TypeScript, MongoDB, Tailwind CSS, and Zustand.
 
-First, run the development server:
+## Features
+
+### Customer Features
+
+* User Registration
+* User Login & Logout
+* JWT Authentication
+* Account Management
+* Change Password
+* Product Listing
+* Product Details Page
+* Category Based Browsing
+* Search Functionality
+* Wishlist Management
+* Cart Management
+* Persistent User-Specific Cart
+* Persistent User-Specific Wishlist
+* Responsive Design
+
+### Admin Features
+
+* Role-Based Authentication
+* Admin Dashboard
+* Order Management (Planned)
+* Inventory Management (Planned)
+
+## Tech Stack
+
+### Frontend
+
+* Next.js 16
+* React 19
+* TypeScript
+* Tailwind CSS
+* Zustand
+* Lucide React
+
+### Backend
+
+* Next.js Route Handlers
+* MongoDB Atlas
+* Mongoose
+* JWT Authentication
+* bcryptjs
+
+## Project Structure
+
+src/
+
+├── app/
+
+├── components/
+
+├── context/
+
+├── lib/
+
+├── models/
+
+├── store/
+
+├── types/
+
+└── data/
+
+## Authentication
+
+Authentication is implemented using:
+
+* JWT Tokens
+* HttpOnly Cookies
+* Protected Routes
+* Role-Based Access Control
+
+## State Management
+
+Zustand is used for:
+
+* Shopping Cart
+* Wishlist
+* User-Specific Persistence
+
+## Database
+
+MongoDB Atlas stores:
+
+* Users
+* Products
+* Orders
+* Authentication Data
+
+## Environment Variables
+
+Create a `.env.local` file:
+
+```env
+MONGODB_URI=your_mongodb_uri
+
+JWT_SECRET=your_secret
+
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+## Installation
+
+```bash
+npm install
+```
+
+## Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Build Production Version
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Start Production Server
 
-## Learn More
+```bash
+npm start
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Future Enhancements
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+* ShipRocket Payment Gateway
+* Order Tracking
+* Admin Analytics
+* Product Reviews
+* Coupon System
+* Email Notifications
+* Inventory Alerts

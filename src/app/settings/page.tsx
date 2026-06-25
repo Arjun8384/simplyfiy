@@ -6,7 +6,6 @@ import {useState} from "react";
 import {useRouter} from "next/navigation";
 
 
-
 export default function SettingsPage(){
 
 
@@ -26,6 +25,7 @@ useState("");
 
 const [message,setMessage]=
 useState("");
+
 
 
 
@@ -85,7 +85,7 @@ setMessage(
 );
 
 
-setTimeout(()=>{
+setTimeout(async ()=>{
 
 router.push("/account");
 

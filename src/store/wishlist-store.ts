@@ -1,73 +1,150 @@
-import { create } from "zustand";
+import {create} from "zustand";
+import {persist} from "zustand/middleware";
 
-import { persist } from "zustand/middleware";
+import {Product} from "@/types/product";
 
-import { Product } from "@/types/product";
 
 
 interface WishlistStore {
 
-  items: Product[];
 
-  addWishlist:(item:Product)=>void;
+items:Product[];
 
-  removeWishlist:(id:string)=>void;
+userEmail:string | null;
 
-  isWishlisted:(id:string)=>boolean;
+
+setUserWishlist:(email:string)=>void;
+
+
+logoutWishlist:()=>void;
+
+
+addWishlist:(product:Product)=>void;
+
+
+removeWishlist:(id:string)=>void;
+
 
 }
 
 
 
-export const useWishlistStore = create<WishlistStore>()(
+
+export const useWishlistStore=create<WishlistStore>()(
 
 persist(
 
-
-(set,get)=>(
-
-
-{
-
-items: [],
+(set,get)=>({
 
 
+items:[],
 
-addWishlist:(item)=>{
+userEmail:null,
 
 
-const exists =
 
-get().items.some(
+setUserWishlist:(email)=>{
 
-(product)=>
 
-product._id === item._id
+const saved =
+localStorage.getItem(
+
+`simplyfiy-wishlist-${email}`
 
 );
 
 
 
-if(!exists){
-
-
 set({
 
-items:[
+userEmail:email,
 
-...get().items,
-
-item
-
-]
+items:saved
+?
+JSON.parse(saved)
+:
+[]
 
 });
 
 
-}
+},
+
+
+
+
+logoutWishlist:()=>{
+
+
+set({
+
+items:[],
+
+userEmail:null
+
+});
 
 
 },
+
+
+
+
+
+
+addWishlist:(product)=>{
+
+
+const {
+items,
+userEmail
+}=get();
+
+
+
+if(!userEmail)
+return;
+
+
+
+if(
+items.some(
+item=>item._id===product._id
+)
+
+)
+return;
+
+
+
+const updated=[
+...items,
+product
+];
+
+
+
+localStorage.setItem(
+
+`simplyfiy-wishlist-${userEmail}`,
+
+JSON.stringify(updated)
+
+);
+
+
+
+set({
+
+items:updated
+
+});
+
+
+},
+
+
+
 
 
 
@@ -75,51 +152,51 @@ item
 removeWishlist:(id)=>{
 
 
-set({
+const {
+userEmail
+}=get();
 
-items:
 
+
+if(!userEmail)
+return;
+
+
+
+const updated =
 get().items.filter(
-
-(product)=>
-
-product._id !== id
-
-)
-
-});
-
-
-},
+item=>item._id!==id
+);
 
 
 
+localStorage.setItem(
 
-isWishlisted:(id)=>{
+`simplyfiy-wishlist-${userEmail}`,
 
-
-return get().items.some(
-
-(product)=>
-
-product._id === id
+JSON.stringify(updated)
 
 );
 
 
+
+set({
+
+items:updated
+
+});
+
+
 }
 
 
 
-}
-
-),
-
+}),
 
 
 {
 
-name:"wishlist-storage"
+name:"simplyfiy-wishlist"
 
 }
 
