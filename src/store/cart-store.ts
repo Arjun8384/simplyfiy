@@ -9,17 +9,12 @@ export interface CartItem extends Product {
 }
 
 
+
 interface CartStore {
 
 items:CartItem[];
 
-userEmail:string | null;
-
-
 setUserCart:(email:string)=>void;
-
-logoutCart:()=>void;
-
 
 addItem:(product:Product)=>void;
 
@@ -29,26 +24,36 @@ increaseQuantity:(id:string)=>void;
 
 decreaseQuantity:(id:string)=>void;
 
+updateQuantity:(id:string,quantity:number)=>void;
+
+logoutCart:()=>void;
+
 clearCart:()=>void;
 
 }
 
 
+let currentUser="guest";
 
-export const useCartStore = create<CartStore>()(
+
+
+export const useCartStore=create<CartStore>()(
 
 persist(
 
-(set,get)=>({
+(set)=>(
+
+
+{
 
 
 items:[],
 
-userEmail:null,
-
-
 
 setUserCart:(email)=>{
+
+
+currentUser=email;
 
 
 const saved =
@@ -57,11 +62,11 @@ localStorage.getItem(
 );
 
 
+
 set({
 
-userEmail:email,
-
-items:saved
+items:
+saved
 ?
 JSON.parse(saved)
 :
@@ -75,51 +80,24 @@ JSON.parse(saved)
 
 
 
-logoutCart:()=>{
+addItem:(product)=>
 
-
-set({
-
-items:[],
-
-userEmail:null
-
-});
-
-
-},
-
-
-
-
-
-addItem:(product)=>{
-
-
-const {
-items,
-userEmail
-}=get();
-
-
-
-if(!userEmail)
-return;
-
+set((state)=>{
 
 
 const exists =
-items.find(
+state.items.find(
 item=>item._id===product._id
 );
 
 
 
-const updated = exists
+const updated =
+exists
 
 ?
 
-items.map(item=>
+state.items.map(item=>
 
 item._id===product._id
 
@@ -141,7 +119,7 @@ item
 
 [
 
-...items,
+...state.items,
 
 {
 ...product,
@@ -154,55 +132,7 @@ quantity:1
 
 localStorage.setItem(
 
-`simplyfiy-cart-${userEmail}`,
-
-JSON.stringify(updated)
-
-);
-
-
-
-set({
-
-items:updated
-
-});
-
-
-},
-
-
-
-
-
-
-removeItem:(id)=>{
-
-
-const {
-userEmail
-}=get();
-
-
-
-if(!userEmail)
-return;
-
-
-
-set(state=>{
-
-
-const updated =
-state.items.filter(
-item=>item._id!==id
-);
-
-
-
-localStorage.setItem(
-
-`simplyfiy-cart-${userEmail}`,
+`simplyfiy-cart-${currentUser}`,
 
 JSON.stringify(updated)
 
@@ -217,35 +147,60 @@ items:updated
 };
 
 
-});
-
-
-},
+}),
 
 
 
 
 
 
-increaseQuantity:(id)=>{
+removeItem:(id)=>
+
+set((state)=>{
 
 
-const {
-userEmail
-}=get();
+const updated =
+state.items.filter(
+
+item=>item._id!==id
+
+);
 
 
 
-if(!userEmail)
-return;
+localStorage.setItem(
+
+`simplyfiy-cart-${currentUser}`,
+
+JSON.stringify(updated)
+
+);
 
 
 
-set(state=>{
+return {
+
+items:updated
+
+};
+
+
+}),
+
+
+
+
+
+
+
+increaseQuantity:(id)=>
+
+set((state)=>{
 
 
 const updated =
 state.items.map(item=>
+
 
 item._id===id
 
@@ -260,13 +215,14 @@ quantity:item.quantity+1
 
 item
 
+
 );
 
 
 
 localStorage.setItem(
 
-`simplyfiy-cart-${userEmail}`,
+`simplyfiy-cart-${currentUser}`,
 
 JSON.stringify(updated)
 
@@ -281,34 +237,21 @@ items:updated
 };
 
 
-});
-
-
-},
+}),
 
 
 
 
 
 
-decreaseQuantity:(id)=>{
 
+decreaseQuantity:(id)=>
 
-const {
-userEmail
-}=get();
-
-
-
-if(!userEmail)
-return;
-
-
-
-set(state=>{
+set((state)=>{
 
 
 const updated =
+
 state.items
 
 .map(item=>
@@ -328,15 +271,13 @@ item
 
 )
 
-.filter(
-item=>item.quantity>0
-);
+.filter(item=>item.quantity>0);
 
 
 
 localStorage.setItem(
 
-`simplyfiy-cart-${userEmail}`,
+`simplyfiy-cart-${currentUser}`,
 
 JSON.stringify(updated)
 
@@ -351,34 +292,74 @@ items:updated
 };
 
 
+}),
+
+updateQuantity:(id,quantity)=>
+
+set((state)=>{
+
+const updated =
+state.items.map(item=>
+
+item._id===id
+
+?
+
+{
+...item,
+quantity:Math.max(1,quantity)
+}
+
+:
+
+item
+
+);
+
+
+localStorage.setItem(
+
+`simplyfiy-cart-${currentUser}`,
+
+JSON.stringify(updated)
+
+);
+
+
+return {
+items:updated
+};
+
+
+}),
+
+
+logoutCart:()=>{
+
+
+set({
+
+items:[]
+
 });
+
+
+currentUser="guest";
 
 
 },
 
 
 
-
-
-
 clearCart:()=>{
 
 
-const {
-userEmail
-}=get();
-
-
-
-if(userEmail){
-
 localStorage.removeItem(
 
-`simplyfiy-cart-${userEmail}`
+`simplyfiy-cart-${currentUser}`
 
 );
 
-}
 
 
 set({
@@ -389,18 +370,15 @@ items:[]
 
 
 }
+}
 
-
-
-}),
+),
 
 {
-
 
 name:"simplyfiy-cart"
 
 }
-
 
 )
 

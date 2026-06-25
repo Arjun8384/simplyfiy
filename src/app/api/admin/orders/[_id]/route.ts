@@ -1,72 +1,57 @@
-import { NextResponse } from "next/server";
-
+import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db/connect";
-
 import Order from "@/models/Order";
 
 
 export async function PATCH(
-
-req:Request,
-
-{params}:{params:{_id:string}}
-
+  request: NextRequest,
+  context: {
+    params: Promise<{
+      _id:string;
+    }>;
+  }
 ){
 
-
 try{
-
 
 await connectDB();
 
 
-const body = await req.json();
+const { _id } = await context.params;
 
 
-const order = await Order.findByIdAndUpdate(
+const body = await request.json();
 
-params._id,
 
-{
-status:body.status
-},
 
-{
-new:true
-}
-
+await Order.findByIdAndUpdate(
+_id,
+body
 );
 
 
 
 return NextResponse.json({
 
-success:true,
-
-order
+success:true
 
 });
 
 
 }
-
 catch(error){
-
 
 console.error(error);
 
 
-return NextResponse.json(
+return NextResponse.json({
 
-{
 success:false
-},
 
+},
 {
 status:500
-}
-
-);
+});
 
 
 }

@@ -1,5 +1,5 @@
 export interface Product {
-  _id: string;
+  _id?: string;
   productId: string;
   name: string;
   slug: string;
@@ -13,4 +13,4 @@ export interface Product {
   stock?: number;
 }
 
-export type SeedProduct = Omit<Product,"_id">;
+export type SeedProduct = Product;

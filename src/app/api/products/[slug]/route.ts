@@ -1,20 +1,20 @@
-import { NextResponse } from "next/server";
-
-import Product from "@/models/Product";
+import {NextRequest,NextResponse} from "next/server";
 
 import connectDB from "@/lib/db/connect";
 
+import Product from "@/models/Product";
 
 
 export async function GET(
-req:Request,
-{
-params,
-}:{
-params:{
+
+req:NextRequest,
+
+context:{
+params:Promise<{
 slug:string
+}>
 }
-}
+
 ){
 
 
@@ -24,41 +24,32 @@ try{
 await connectDB();
 
 
+const {
+slug
+}=await context.params;
+
+
 
 const product =
 await Product.findOne({
-slug:params.slug
+slug
 });
 
 
 
-if(!product){
+return NextResponse.json({
 
-return NextResponse.json(
-{
-success:false,
-message:"Product not found"
-},
-{
-status:404
-}
-);
-
-}
-
-
-
-return NextResponse.json(
-{
 success:true,
+
 product
+
+});
+
+
 }
-);
 
-
-
-}
 catch(error){
+
 
 console.log(error);
 
@@ -71,6 +62,7 @@ success:false
 status:500
 }
 );
+
 
 }
 

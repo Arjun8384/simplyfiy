@@ -54,8 +54,9 @@ function handleWishlist(){
 
 if(liked){
 
-removeWishlist(product._id);
-
+if(product._id){
+  removeWishlist(product._id);
+}
 }
 
 else{

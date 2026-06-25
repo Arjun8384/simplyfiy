@@ -193,13 +193,6 @@ checkAuth();
 },[checkAuth]);
 
 
-
-
-
-
-
-
-
 const refetch =
 useCallback(async()=>{
 
@@ -208,15 +201,6 @@ await checkAuth();
 
 
 },[checkAuth]);
-
-
-
-
-
-
-
-
-
 
 
 const logout =
@@ -261,13 +245,6 @@ useWishlistStore
 
 
 };
-
-
-
-
-
-
-
 
 
 

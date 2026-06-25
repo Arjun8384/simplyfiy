@@ -183,8 +183,10 @@ className="object-contain"
 
 <button
 
-onClick={()=>updateQuantity(item._id, item.quantity-1)}
-
+onClick={()=>
+  item._id &&
+  updateQuantity(item._id, item.quantity-1)
+}
 className="rounded border px-3 py-1 cursor-pointer"
 
 >
@@ -223,7 +225,7 @@ className="rounded border px-3 py-1 cursor-pointer"
 
 <button
 
-onClick={()=>removeItem(item._id)}
+onClick={()=>item._id && removeItem(item._id)}
 
 className="mt-4 text-sm text-red-600 cursor-pointer"
 
