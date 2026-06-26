@@ -43,7 +43,7 @@ return (
 <Categories />
 
 
-<section className="mx-auto max-w-7xl px-4 py-12">
+<section className="bg-red-600 mx-auto max-w-8xl px-4 py-4">
 
 
 <h2 className="mb-8 text-3xl font-bold">
@@ -52,7 +52,7 @@ Featured Toys
 
 
 
-<div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+<div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 bg-red-600">
 
 
 {

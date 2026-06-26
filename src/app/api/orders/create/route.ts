@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db/connect";
 import Order from "@/models/Order";
+import jwt from "jsonwebtoken";
+
 
 export async function POST(
   request: Request
@@ -8,26 +10,77 @@ export async function POST(
 
   try {
 
+
     await connectDB();
 
 
     const body =
       await request.json();
 
+
     console.log("Order received", body);
+
+
+
+    const cookieHeader =
+      request.headers.get("cookie");
+
+
+    const token =
+      cookieHeader
+        ?.split("; ")
+        .find(
+          row => row.startsWith("token=")
+        )
+        ?.split("=")[1];
+
+
+
+    if(!token){
+
+      return NextResponse.json(
+        {
+          success:false,
+          message:"Unauthorized"
+        },
+        {
+          status:401
+        }
+      );
+
+    }
+
+
+
+    const decoded =
+      jwt.verify(
+        token,
+        process.env.JWT_SECRET!
+      ) as {
+        id:string;
+      };
+
+
+
 
     const order =
       await Order.create({
-        userId: body.userId,
-        
+
+        userId:
+          decoded.id,
+
+
         customerName:
           body.customerName,
+
 
         email:
           body.email,
 
+
         phone:
           body.phone,
+
 
         address:
           body.address,
@@ -78,6 +131,7 @@ export async function POST(
 
 
   }
+
 
   catch(error){
 

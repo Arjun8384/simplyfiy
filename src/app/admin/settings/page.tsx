@@ -1,3 +1,5 @@
+import SettingsPage from "@/app/settings/page";
+
 export default function Page() {
-  return <div>Settings</div>;
+  return <SettingsPage/>;
 }

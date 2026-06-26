@@ -5,7 +5,7 @@ import Link from "next/link";
 export default function OrderSuccessPage(){
 
 return (
-<div className="mx-auto flex min-h-[70vh] max-w-7xl flex-col items-center justify-center px-4 text-center">
+<div className="mx-auto bg-white flex min-h-[70vh] max-w-7xl flex-col items-center justify-center px-4 text-center">
 
 <h1 className="mb-4 text-4xl font-bold text-green-600">
 Order Placed Successfully 🎉

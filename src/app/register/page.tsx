@@ -106,7 +106,7 @@ data.message || "Registration failed"
 
 return (
 
-<section className="mx-auto max-w-md px-4 py-12">
+<section className="mx-auto max-w-md bg-white px-4 py-12">
 
 
 <h1 className="mb-8 text-3xl font-bold">

@@ -46,7 +46,7 @@ export default function HeroCarousel() {
   }, []);
 
   return (
-    <section className="relative h-[550px] overflow-hidden">
+    <section className="relative bg-red-600 h-[550px] overflow-hidden">
 
       <Image
         src={slides[current].image}

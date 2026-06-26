@@ -115,7 +115,7 @@ export default function ProductDetails({
 
             onClick={()=>addToCart(product)}
 
-            className="rounded-xl bg-slate-900 px-6 py-3 text-white hover:bg-slate-700"
+            className="rounded-xl bg-slate-900 px-6 py-3 text-white transition duration-300 hover:scale-105 active:scale-95 hover:bg-slate-700"
 
           >
 

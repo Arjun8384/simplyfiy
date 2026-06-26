@@ -21,7 +21,7 @@ export default function AddToCartButton({
       onClick={() =>
         addItem(product)
       }
-      className="rounded-lg bg-blue-900 cursor-pointer px-6 py-3 text-white"
+      className="rounded-lg bg-blue-900 cursor-pointer px-6 py-3 text-white transition duration-300 hover:scale-105 active:scale-95"
     >
       Add To Cart
     </button>

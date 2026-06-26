@@ -107,7 +107,7 @@ console.log(data.message);
 
 return (
 
-<div className="mx-auto max-w-md px-4 py-12">
+<div className="mx-auto bg-white max-w-md px-4 py-12">
 
 
 <h1 className="mb-6 text-3xl font-bold">

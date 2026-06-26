@@ -172,22 +172,22 @@ className="mt-3 rounded border p-2"
 >
 
 
-<option>
+<option value="PENDING">
 Pending
 </option>
 
 
-<option>
+<option value="PROCESSING">
 Processing
 </option>
 
 
-<option>
+<option value="SHIPPED">
 Shipped
 </option>
 
 
-<option>
+<option value="DELIVERED">
 Delivered
 </option>
 

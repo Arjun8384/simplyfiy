@@ -1,81 +1,101 @@
-import { NextRequest, NextResponse } from "next/server";
+import {NextResponse} from "next/server";
 import connectDB from "@/lib/db/connect";
 import Product from "@/models/Product";
 
 
-export async function GET(req: NextRequest) {
 
-  try {
+export async function GET(){
 
-    await connectDB();
+try{
 
-
-    const { searchParams } = new URL(req.url);
+await connectDB();
 
 
-    const query =
-      searchParams.get("q");
+const products =
+await Product.find();
 
 
-    let products;
+return NextResponse.json({
+
+success:true,
+
+products
+
+});
 
 
-    if(query){
+}
 
-      products = await Product.find({
+catch(error){
+  console.log(error);
 
-        $or:[
+return NextResponse.json({
 
-          {
-            name:{
-              $regex:query,
-              $options:"i"
-            }
-          },
+success:false
 
-          {
-            category:{
-              $regex:query,
-              $options:"i"
-            }
-          }
+},
+{
+status:500
+});
 
-        ]
+}
 
-      });
-
-    }
-    else{
-
-      products =
-      await Product.find();
-
-    }
+}
 
 
-    return NextResponse.json({
-
-      success:true,
-      products
-
-    });
 
 
-  }
-  catch(error){
-    console.log(error);
+export async function POST(
+request:Request
+){
 
-    return NextResponse.json(
-      {
-        success:false,
-        message:"Failed to fetch products"
-      },
-      {
-        status:500
-        
-      }
-    );
 
-  }
+try{
+
+
+await connectDB();
+
+
+const body =
+await request.json();
+
+
+
+const product =
+await Product.create(body);
+
+
+
+return NextResponse.json({
+
+success:true,
+
+product
+
+},
+{
+status:201
+});
+
+
+}
+
+catch(error){
+
+console.log(error);
+
+
+return NextResponse.json({
+
+success:false
+
+},
+{
+status:500
+});
+
+
+}
+
 
 }

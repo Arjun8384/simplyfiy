@@ -74,7 +74,7 @@ return null;
 
 return (
 
-<div className="max-w-xl mx-auto py-10">
+<div className="max-w-xl mx-auto bg-white py-10">
 
 
 <h1 className="text-3xl font-bold">
@@ -105,16 +105,35 @@ Email:
 
 
 
-<p>
-
-Role:
-{user.role}
-
-</p>
-
-
-
 </div>
+
+{
+ user.role === "admin" && (
+
+<button
+
+onClick={()=>
+ router.push("/admin/dashboard")
+}
+
+className="
+mt-4
+rounded
+bg-black
+px-5
+py-2
+text-white
+"
+
+>
+
+Admin Panel
+
+</button>
+
+)
+
+}
 
 
 
@@ -137,7 +156,7 @@ Settings
 
 onClick={logout}
 
-className="mt-4 block rounded bg-red-600 px-5 py-2 text-white"
+className="mt-4 block rounded bg-black px-5 py-2 text-white"
 
 >
 

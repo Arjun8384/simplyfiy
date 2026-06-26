@@ -117,13 +117,14 @@ className="w-full bg-transparent px-3 outline-none"
 
 
 
-
-
 {/* Actions */}
 
 
 <div className="flex items-center gap-5">
 
+
+{user?.role !== "admin" && (
+    <>
 
 <Link href="/">
 
@@ -148,12 +149,10 @@ className="h-6 w-6 cursor-pointer"
 </Link>
 
 
-
 <CartIcon />
 
-
-
-
+</>
+)}
 
 {
 user ? (

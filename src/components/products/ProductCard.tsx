@@ -72,8 +72,7 @@ addWishlist(product);
 return (
 
 <div
-className="rounded-xl border bg-white p-4 transition hover:shadow-lg"
->
+className="group rounded-2xl shadow-md border bg-white p-4 transition-all duration-300 hover: -translate-y-2  overflow-hidden hover:shadow-2xl">
 
 
 <div
@@ -95,7 +94,7 @@ alt={product.name}
 fill
 
 sizes="(max-width:768px) 100vw, 25vw"
-className="object-contain"
+className="object-contain transition-transform duration-500 group-hover:scale-105"
 />
 
 ):(
@@ -186,7 +185,7 @@ type="button"
 
 onClick={()=>addItem(product)}
 
-className="mt-4 w-full rounded-lg bg-slate-900 py-2 text-white cursor-pointer transition hover:bg-slate-700"
+className="mt-4 w-full rounded-lg bg-slate-900 py-2 text-white cursor-pointer transition duration-300 hover:scale-105 active:scale-95 hover:bg-slate-700"
 
 >
 

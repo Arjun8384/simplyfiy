@@ -27,17 +27,13 @@ export default function AdminLayout({
             Products
           </Link>
 
-          <Link href="/admin/user">
-            Users
-          </Link>
-
           <Link href="/admin/settings">
             Settings
           </Link>
         </nav>
       </aside>
 
-      <main className="flex-1 p-8">
+      <main className="bg-white flex-1 p-8">
         {children}
       </main>
     </div>
