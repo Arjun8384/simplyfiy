@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import Link from "next/link";
+// import Link from "next/link";
 
 const slides = [
   {
@@ -39,7 +39,7 @@ export default function HeroCarousel() {
             ? 0
             : prev + 1
         );
-      }, 5000);
+      }, 3000);
 
     return () =>
       clearInterval(interval);
@@ -56,19 +56,19 @@ export default function HeroCarousel() {
         className="object-cover"
       />
 
-      <div className="absolute inset-0 bg-black/40" />
+     {/*  <div className="absolute inset-0 bg-black/40" />
 
       <div className="absolute inset-0 flex items-center">
 
         <div className="mx-auto max-w-7xl px-6 text-white">
 
-          {/* <h1 className="text-6xl font-bold">
+          <h1 className="text-6xl font-bold">
             {slides[current].title}
           </h1>
 
           <p className="mt-4 text-xl">
             {slides[current].subtitle}
-          </p> */}
+          </p> 
 
           <Link
 href="/products"
@@ -78,7 +78,7 @@ Shop Now
 </Link>
 
         </div>
-      </div>
+      </div> */}
     </section>
   );
 }
