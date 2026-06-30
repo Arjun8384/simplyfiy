@@ -1,31 +1,32 @@
 "use client";
 
-
 import {useState} from "react";
-
 import {useRouter} from "next/navigation";
 
 
 export default function SettingsPage(){
 
 
-const router =
-useRouter();
+const router=useRouter();
+
+
+const [oldPassword,setOldPassword]=useState("");
+
+const [newPassword,setNewPassword]=useState("");
+
+const [confirmPassword,setConfirmPassword]=useState("");
+
+const [message,setMessage]=useState("");
 
 
 
-const [oldPassword,setOldPassword]=
-useState("");
 
-const [newPassword,setNewPassword]=
-useState("");
 
-const [confirmPassword,setConfirmPassword]=
-useState("");
+function validatePassword(password:string){
 
-const [message,setMessage]=
-useState("");
+return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(password);
 
+}
 
 
 
@@ -34,7 +35,11 @@ useState("");
 async function changePassword(){
 
 
-if(newPassword !== confirmPassword){
+setMessage("");
+
+
+
+if(newPassword!==confirmPassword){
 
 setMessage(
 "New passwords do not match"
@@ -46,18 +51,31 @@ return;
 
 
 
-const res =
-await fetch("/api/auth/change-password",{
+if(!validatePassword(newPassword)){
 
+
+setMessage(
+"Password must contain uppercase, lowercase, number and symbol"
+);
+
+return;
+
+}
+
+
+
+const res =
+await fetch(
+
+"/api/auth/change-password",
+
+{
 
 method:"PUT",
 
 headers:{
-
 "Content-Type":"application/json"
-
 },
-
 
 body:JSON.stringify({
 
@@ -67,8 +85,9 @@ newPassword
 
 })
 
+}
 
-});
+);
 
 
 
@@ -85,7 +104,8 @@ setMessage(
 );
 
 
-setTimeout(async ()=>{
+
+setTimeout(()=>{
 
 router.push("/account");
 
@@ -105,18 +125,17 @@ data.message || "Failed"
 }
 
 
+
 }
 
 
 
-
-return (
-
+return(
 
 <section className="mx-auto max-w-md px-4 py-12">
 
 
-<h1 className="text-3xl font-bold mb-8">
+<h1 className="mb-8 text-3xl font-bold">
 
 Change Password
 
@@ -127,7 +146,6 @@ Change Password
 <div className="space-y-4">
 
 
-
 <input
 
 type="password"
@@ -136,14 +154,11 @@ placeholder="Current password"
 
 value={oldPassword}
 
-onChange={(e)=>
-setOldPassword(e.target.value)
-}
+onChange={(e)=>setOldPassword(e.target.value)}
 
-className="w-full rounded-xl border p-3"
+className="w-full border p-3"
 
 />
-
 
 
 <input
@@ -154,11 +169,9 @@ placeholder="New password"
 
 value={newPassword}
 
-onChange={(e)=>
-setNewPassword(e.target.value)
-}
+onChange={(e)=>setNewPassword(e.target.value)}
 
-className="w-full rounded-xl border p-3"
+className="w-full border p-3"
 
 />
 
@@ -172,14 +185,11 @@ placeholder="Confirm password"
 
 value={confirmPassword}
 
-onChange={(e)=>
-setConfirmPassword(e.target.value)
-}
+onChange={(e)=>setConfirmPassword(e.target.value)}
 
-className="w-full rounded-xl border p-3"
+className="w-full border p-3"
 
 />
-
 
 
 
@@ -187,7 +197,7 @@ className="w-full rounded-xl border p-3"
 
 onClick={changePassword}
 
-className="w-full rounded-xl bg-slate-900 py-3 text-white"
+className="w-full rounded bg-slate-900 py-3 text-white"
 
 >
 
@@ -197,12 +207,7 @@ Update Password
 
 
 
-
-<p>
-
-{message}
-
-</p>
+<p>{message}</p>
 
 
 

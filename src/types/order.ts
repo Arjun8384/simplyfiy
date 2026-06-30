@@ -18,5 +18,7 @@ createdAt:string;
 
 items:any[];
 
+address:string;
+
 
 }

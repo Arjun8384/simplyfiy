@@ -1,10 +1,7 @@
 "use client";
 
-
 import {useState} from "react";
-
 import {useRouter} from "next/navigation";
-
 
 
 export default function AdminLogin(){
@@ -13,13 +10,79 @@ export default function AdminLogin(){
 const router = useRouter();
 
 
-const [email,setEmail]=useState("");
+const [form,setForm]=useState({
 
-const [password,setPassword]=useState("");
+email:"",
+password:""
+
+});
+
+
+const [error,setError]=useState("");
+
+const [loading,setLoading]=useState(false);
+
+const [showPassword,setShowPassword]=useState(false);
+
+
+
+
+function validateEmail(email:string){
+
+return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+}
+
+
+
+function validatePassword(password:string){
+
+return password.length >= 8;
+
+}
+
+
 
 
 
 async function handleLogin(){
+
+
+setError("");
+
+
+
+if(!validateEmail(form.email)){
+
+
+setError(
+"Enter a valid admin email"
+);
+
+return;
+
+}
+
+
+
+if(!validatePassword(form.password)){
+
+
+setError(
+"Password must contain minimum 8 characters"
+);
+
+return;
+
+}
+
+
+
+try{
+
+
+setLoading(true);
+
 
 
 const res =
@@ -32,18 +95,10 @@ await fetch(
 method:"POST",
 
 headers:{
-
 "Content-Type":"application/json"
-
 },
 
-body:JSON.stringify({
-
-email,
-
-password
-
-})
+body:JSON.stringify(form)
 
 }
 
@@ -56,7 +111,18 @@ await res.json();
 
 
 
-if(data.success){
+
+if(!data.success){
+
+
+setError(
+data.message || "Invalid credentials"
+);
+
+return;
+
+}
+
 
 
 localStorage.setItem(
@@ -68,19 +134,31 @@ JSON.stringify(data.admin)
 );
 
 
-router.push("/admin/orders");
+
+router.push("/admin/dashboard");
+
+
+
+}
+
+catch{
+
+setError(
+"Server error"
+);
+
+}
+
+finally{
+
+setLoading(false);
+
+}
+
 
 
 }
 
-else{
-
-alert(data.message);
-
-}
-
-
-}
 
 
 return(
@@ -96,21 +174,44 @@ Admin Login
 
 
 
+
+{
+
+error &&
+
+<div className="mb-4 rounded bg-red-100 p-3 text-red-700">
+
+{error}
+
+</div>
+
+}
+
+
+
+
 <input
 
 className="mb-4 w-full border p-3"
 
-placeholder="Email"
+placeholder="Admin Email"
 
-value={email}
+value={form.email}
 
 onChange={(e)=>
 
-setEmail(e.target.value)
+setForm({
+
+...form,
+
+email:e.target.value
+
+})
 
 }
 
 />
+
 
 
 
@@ -120,13 +221,19 @@ className="mb-4 w-full border p-3"
 
 placeholder="Password"
 
-type="password"
+type={showPassword?"text":"password"}
 
-value={password}
+value={form.password}
 
 onChange={(e)=>
 
-setPassword(e.target.value)
+setForm({
+
+...form,
+
+password:e.target.value
+
+})
 
 }
 
@@ -134,15 +241,43 @@ setPassword(e.target.value)
 
 
 
+
+<label className="mb-4 flex gap-2 text-sm">
+
+<input
+
+type="checkbox"
+
+onChange={()=>setShowPassword(!showPassword)}
+
+/>
+
+Show password
+
+</label>
+
+
+
+
 <button
+
+disabled={loading}
 
 onClick={handleLogin}
 
-className="w-full rounded bg-slate-900 p-3 text-white cursor-pointer"
+className="w-full rounded bg-slate-900 p-3 text-white disabled:opacity-50"
 
 >
 
-Login
+{
+
+loading?
+"Logging in..."
+:
+"Login"
+
+}
+
 
 </button>
 
@@ -150,6 +285,5 @@ Login
 </div>
 
 )
-
 
 }

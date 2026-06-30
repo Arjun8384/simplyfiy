@@ -1,27 +1,31 @@
 "use client";
 
-
-import {useEffect,useState} from "react";
-
-import {Order} from "@/types/order";
-
+import { useEffect, useState } from "react";
+import { Order } from "@/types/order";
 
 
 export default function OrdersPage(){
 
-
 const [orders,setOrders]=useState<Order[]>([]);
+
+const [loading,setLoading]=useState(true);
 
 
 
 useEffect(()=>{
 
+async function loadOrders(){
 
-fetch("/api/orders")
+try{
 
-.then(res=>res.json())
+const res =
+await fetch("/api/orders",{
+cache:"no-store"
+});
 
-.then(data=>{
+
+const data =
+await res.json();
 
 
 if(data.success){
@@ -31,7 +35,28 @@ setOrders(data.orders);
 }
 
 
-});
+}
+
+catch(error){
+
+console.log(
+"Orders error",
+error
+);
+
+}
+
+finally{
+
+setLoading(false);
+
+}
+
+
+}
+
+
+loadOrders();
 
 
 },[]);
@@ -41,11 +66,8 @@ setOrders(data.orders);
 
 
 async function updateStatus(
-
 id:string,
-
 status:string
-
 ){
 
 
@@ -58,15 +80,11 @@ await fetch(
 method:"PATCH",
 
 headers:{
-
 "Content-Type":"application/json"
-
 },
 
 body:JSON.stringify({
-
 status
-
 })
 
 }
@@ -75,9 +93,9 @@ status
 
 
 
-setOrders((prev)=>
+setOrders(prev=>
 
-prev.map((order)=>
+prev.map(order=>
 
 order._id===id
 
@@ -101,59 +119,140 @@ order
 
 
 
-return (
-
-<div className="mx-auto max-w-7xl px-4 py-10">
 
 
-<h1 className="mb-8 text-3xl font-bold">
+
+if(loading){
+
+return(
+
+<div className="p-10">
+
+Loading orders...
+
+</div>
+
+);
+
+}
+
+
+
+
+
+return(
+
+<div className="space-y-8">
+
+
+<div>
+
+<h1 className="text-3xl font-bold">
 
 Orders
 
 </h1>
 
 
+<p className="text-gray-500 mt-2">
+
+Manage customer orders and delivery status
+
+</p>
+
+
+</div>
+
+
+
+
 
 <div className="space-y-5">
 
 
-{orders.map((order)=>(
+{
+
+orders.length===0
+
+?
+
+<div className="rounded-xl border p-8 text-center text-gray-500">
+
+No orders received yet
+
+</div>
+
+
+:
+
+
+orders.map(order=>(
 
 
 <div
 
 key={order._id}
 
-className="rounded-xl border p-5"
+className="
+rounded-2xl
+border
+bg-white
+p-5
+shadow-sm
+transition
+hover:shadow-md
+"
 
 >
 
 
-<p>
+<div className="flex flex-col gap-3 md:flex-row md:justify-between">
 
-Order ID: {order._id}
+
+<div>
+
+
+<h2 className="font-bold text-lg">
+
+{order.customerName}
+
+</h2>
+
+
+<p className="text-sm text-gray-500">
+
+Order ID:
+{order._id}
 
 </p>
 
 
-<p>
+<p className="mt-2">
 
-Customer: {order.customerName}
+Total:
+<span className="font-bold">
 
-</p>
+ ₹{order.total}
 
-
-<p>
-
-Total: ₹{order.total}
+</span>
 
 </p>
 
+
+</div>
+
+
+
+
+
+<div>
 
 
 <select
 
+
 value={order.status}
+
 
 onChange={(e)=>
 
@@ -167,46 +266,101 @@ e.target.value
 
 }
 
-className="mt-3 rounded border p-2"
+
+className="
+rounded-lg
+border
+px-4
+py-2
+"
 
 >
 
 
 <option value="PENDING">
+
 Pending
+
 </option>
 
 
 <option value="PROCESSING">
+
 Processing
+
 </option>
 
 
 <option value="SHIPPED">
+
 Shipped
+
 </option>
 
 
 <option value="DELIVERED">
+
 Delivered
+
 </option>
 
 
 </select>
 
 
-
-</div>
-
-
-))}
-
-
 </div>
 
 
 </div>
 
-)
+
+
+
+
+
+<div className="
+mt-5
+rounded-xl
+bg-gray-50
+p-4
+">
+
+
+<p className="font-semibold">
+
+Delivery Address
+
+</p>
+
+
+<p className="text-gray-600">
+
+{order.address}
+
+</p>
+
+
+</div>
+
+
+
+
+</div>
+
+
+))
+
+}
+
+
+
+</div>
+
+
+</div>
+
+
+);
+
 
 }

@@ -1,69 +1,31 @@
 "use client";
 
-
-import {useEffect} from "react";
-
-import {useRouter} from "next/navigation";
-
 import {useAuth} from "@/context/AuthContext";
-
+import {useRouter} from "next/navigation";
 
 
 export default function AccountPage(){
 
 
-const {
-user,
-loading,
-logout
+const {user,loading}=useAuth();
 
-}=useAuth();
-
-
-const router =
-useRouter();
-
-
-
-useEffect(()=>{
-
-
-if(!loading && !user){
-
-router.replace("/login");
-
-}
-
-
-},[
-loading,
-user,
-router
-]);
-
-
+const router=useRouter();
 
 
 
 if(loading){
 
-return (
-
-<div className="p-10">
-
+return <div className="p-10">
 Loading...
-
 </div>
-
-)
 
 }
 
 
 
-
-
 if(!user){
+
+router.push("/login");
 
 return null;
 
@@ -72,20 +34,19 @@ return null;
 
 
 
-return (
+return(
 
-<div className="max-w-xl mx-auto bg-white py-10">
+<section className="mx-auto max-w-xl bg-white p-8">
 
 
-<h1 className="text-3xl font-bold">
+<h1 className="mb-6 text-3xl font-bold">
 
 My Account
 
 </h1>
 
 
-
-<div className="mt-6 space-y-3">
+<div className="space-y-3">
 
 
 <p>
@@ -94,6 +55,7 @@ Name:
 {user.name}
 
 </p>
+
 
 
 <p>
@@ -107,23 +69,31 @@ Email:
 
 </div>
 
+
+{/* 
+<button
+
+onClick={()=>router.push("/settings")}
+
+className="mt-6 rounded bg-slate-900 px-5 py-3 text-white"
+
+>
+
+Settings
+
+</button> */}
+
+
+
 {
- user.role === "admin" && (
+
+user.role==="admin" &&
 
 <button
 
-onClick={()=>
- router.push("/admin/dashboard")
-}
+onClick={()=>router.push("/admin/dashboard")}
 
-className="
-mt-4
-rounded
-bg-black
-px-5
-py-2
-text-white
-"
+className="ml-3 rounded bg-red-600 px-5 py-3 text-white"
 
 >
 
@@ -131,45 +101,13 @@ Admin Panel
 
 </button>
 
-)
-
 }
 
 
 
-<button
-
-onClick={()=>router.push("/settings")}
-
-className="mt-6 rounded bg-black px-5 py-2 text-white"
-
->
-
-Settings
-
-</button>
-
-
-
-
-<button
-
-onClick={logout}
-
-className="mt-4 block rounded bg-black px-5 py-2 text-white"
-
->
-
-Logout
-
-</button>
-
-
-
-</div>
+</section>
 
 
 )
-
 
 }

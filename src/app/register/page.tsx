@@ -1,27 +1,42 @@
 "use client";
 
-
-import {useState} from "react";
-
-import {useRouter} from "next/navigation";
-
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 
 export default function RegisterPage(){
 
-
 const router = useRouter();
 
 
+const [form,setForm]=useState({
 
-const [name,setName]=useState("");
+name:"",
+email:"",
+password:""
 
-const [email,setEmail]=useState("");
+});
 
-const [password,setPassword]=useState("");
 
 const [message,setMessage]=useState("");
 
+const [loading,setLoading]=useState(false);
+
+
+
+function validateEmail(email:string){
+
+return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+}
+
+
+
+function validatePassword(password:string){
+
+return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(password);
+
+}
 
 
 
@@ -29,32 +44,61 @@ const [message,setMessage]=useState("");
 async function register(){
 
 
-const res =
-await fetch("/api/auth/register",{
+setMessage("");
 
+
+
+if(!form.name.trim()){
+
+setMessage("Full name is required");
+return;
+
+}
+
+
+
+if(!validateEmail(form.email)){
+
+setMessage("Enter a valid email address");
+return;
+
+}
+
+
+
+if(!validatePassword(form.password)){
+
+setMessage(
+"Password must contain minimum 8 characters, uppercase, lowercase, number and special character"
+);
+
+return;
+
+}
+
+
+
+try{
+
+
+setLoading(true);
+
+
+
+const res =
+await fetch(
+"/api/auth/register",
+{
 
 method:"POST",
 
 headers:{
-
 "Content-Type":"application/json"
-
 },
 
-
-body:JSON.stringify({
-
-name,
-
-email,
-
-password
-
-})
-
+body:JSON.stringify(form)
 
 });
-
 
 
 const data =
@@ -66,16 +110,14 @@ if(data.success){
 
 
 setMessage(
-"Account created. Redirecting..."
+"Account created. Redirecting to login..."
 );
 
 
 
 setTimeout(()=>{
 
-
 router.push("/login");
-
 
 },1000);
 
@@ -85,26 +127,38 @@ router.push("/login");
 
 else{
 
-
 setMessage(
-
 data.message || "Registration failed"
-
 );
 
-
 }
 
 
 
 }
 
+catch{
+
+setMessage(
+"Something went wrong"
+);
+
+}
+
+
+finally{
+
+setLoading(false);
+
+}
+
+
+}
 
 
 
 
-
-return (
+return(
 
 <section className="mx-auto max-w-md bg-white px-4 py-12">
 
@@ -117,19 +171,25 @@ Create Account
 
 
 
-
 <div className="space-y-4">
-
 
 
 <input
 
 placeholder="Full name"
 
-value={name}
+value={form.name}
 
 onChange={(e)=>
-setName(e.target.value)
+
+setForm({
+
+...form,
+
+name:e.target.value
+
+})
+
 }
 
 className="w-full rounded-xl border p-3"
@@ -145,10 +205,18 @@ placeholder="Email"
 
 type="email"
 
-value={email}
+value={form.email}
 
 onChange={(e)=>
-setEmail(e.target.value)
+
+setForm({
+
+...form,
+
+email:e.target.value
+
+})
+
 }
 
 className="w-full rounded-xl border p-3"
@@ -165,10 +233,18 @@ placeholder="Password"
 
 type="password"
 
-value={password}
+value={form.password}
 
 onChange={(e)=>
-setPassword(e.target.value)
+
+setForm({
+
+...form,
+
+password:e.target.value
+
+})
+
 }
 
 className="w-full rounded-xl border p-3"
@@ -177,22 +253,38 @@ className="w-full rounded-xl border p-3"
 
 
 
+<p className="text-xs text-gray-500">
+
+Password: 8+ chars, uppercase, lowercase, number and symbol
+
+</p>
+
+
 
 <button
 
+disabled={loading}
+
 onClick={register}
 
-className="w-full rounded-xl bg-slate-900 py-3 text-white"
+className="w-full rounded-xl bg-slate-900 py-3 text-white disabled:opacity-50"
 
 >
 
-Register
+{
+loading?
+"Creating..."
+:
+"Register"
+}
+
 
 </button>
 
 
 
-<p>
+
+<p className="text-sm text-red-600">
 
 {message}
 
@@ -205,7 +297,7 @@ Register
 
 </section>
 
-)
 
+)
 
 }

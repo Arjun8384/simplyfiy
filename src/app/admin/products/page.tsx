@@ -151,17 +151,20 @@ error
 }
 
 
-
-
-
 useEffect(()=>{
 
 
-loadProducts();
+async function fetchProducts(){
+
+await loadProducts();
+
+}
+
+
+fetchProducts();
 
 
 },[]);
-
 
 
 
