@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import ProductDetails from "@/components/products/ProductDetails";
 import { Product } from "@/types/product";
 
@@ -13,7 +15,7 @@ async function getProducts(): Promise<Product[]> {
 
 
   const res = await fetch(
-    "http://localhost:3000/api/products",
+    `${process.env.NEXT_PUBLIC_APP_URL}/api/products`,
     {
       cache:"no-store"
     }
