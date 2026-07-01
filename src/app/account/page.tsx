@@ -61,7 +61,7 @@ My Account
 <div className="space-y-3">
 
 
-<p>
+<p> 
 Name: {user.name}
 </p>
 
@@ -104,7 +104,7 @@ user.role==="admin" &&
 
 onClick={()=>router.push("/admin/dashboard")}
 
-className="rounded bg-red-600 px-5 py-3 text-white"
+className="rounded bg-gray-600 px-5 py-3 text-white"
 
 >
 
@@ -120,7 +120,7 @@ Admin Panel
 
 onClick={logout}
 
-className="rounded bg-gray-700 px-5 py-3 text-white"
+className="rounded bg-red-700 px-5 py-3 text-white"
 
 >
 

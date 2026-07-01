@@ -1,60 +1,43 @@
 "use client";
 
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
-import {useEffect,useState} from "react";
 
+interface Product {
 
-
-interface Product{
-
-_id:string;
-
-productId:string;
-
-name:string;
-
-slug:string;
-
-category:string;
-
-price:number;
-
-originalPrice:number;
-
-images:string;
-
-description:string;
-
-stock:number;
-
-featured:boolean;
-
-bestseller:boolean;
+  _id:string;
+  productId:string;
+  name:string;
+  slug:string;
+  category:string;
+  price:number;
+  originalPrice:number;
+  images:string;
+  description:string;
+  stock:number;
+  featured:boolean;
+  bestseller:boolean;
 
 }
-
 
 
 
 interface ProductForm{
 
-productId:string;
-
 name:string;
-
-slug:string;
 
 category:string;
 
-price:number;
+price:string;
 
-originalPrice:number;
+originalPrice:string;
 
 images:string;
 
 description:string;
 
-stock:number;
+stock:string;
 
 featured:boolean;
 
@@ -64,26 +47,21 @@ bestseller:boolean;
 
 
 
-
 const emptyForm:ProductForm={
-
-productId:"",
 
 name:"",
 
-slug:"",
-
 category:"",
 
-price:0,
+price:"",
 
-originalPrice:0,
+originalPrice:"",
 
 images:"",
 
 description:"",
 
-stock:0,
+stock:"",
 
 featured:false,
 
@@ -93,9 +71,8 @@ bestseller:false
 
 
 
-
-
 export default function ProductsPage(){
+
 
 
 const [products,setProducts]=useState<Product[]>([]);
@@ -110,7 +87,12 @@ const [editing,setEditing]=useState<string|null>(
 null
 );
 
+const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
+
+
+
+// reusable fetch function for CRUD actions
 
 async function loadProducts(){
 
@@ -119,9 +101,13 @@ try{
 
 
 const res =
-await fetch("/api/products",{
+await fetch(
+"/api/products",
+{
 cache:"no-store"
-});
+}
+);
+
 
 
 const data =
@@ -131,9 +117,12 @@ await res.json();
 
 if(data.success){
 
-setProducts(data.products);
+setProducts(
+data.products
+);
 
 }
+
 
 
 }
@@ -141,7 +130,7 @@ setProducts(data.products);
 catch(error){
 
 console.log(
-"PRODUCT FETCH ERROR",
+"PRODUCT LOAD ERROR",
 error
 );
 
@@ -151,20 +140,59 @@ error
 }
 
 
+
+
+
+
+// initial page loading
 useEffect(()=>{
 
 
-async function fetchProducts(){
+let active=true;
 
-await loadProducts();
+
+
+fetch(
+"/api/products",
+{
+cache:"no-store"
+}
+)
+
+.then(res=>res.json())
+
+.then(data=>{
+
+
+if(
+active &&
+data.success
+){
+
+setProducts(
+data.products
+);
 
 }
 
 
-fetchProducts();
+})
+
+.catch(console.log);
+
+
+
+return()=>{
+
+active=false;
+
+};
+
 
 
 },[]);
+
+
 
 
 
@@ -210,14 +238,71 @@ value
 }
 
 
-
-
-
 async function saveProduct(){
 
 
+let imageUrl =
+form.images;
 
-const url = editing
+
+
+if(selectedImage){
+
+
+const uploadData =
+new FormData();
+
+
+
+uploadData.append(
+"image",
+selectedImage
+);
+
+
+
+const uploadRes =
+await fetch(
+"/api/upload",
+{
+
+method:"POST",
+
+body:uploadData
+
+}
+
+);
+
+
+
+const uploadResult =
+await uploadRes.json();
+
+
+
+if(!uploadResult.success){
+    console.log(uploadResult);
+
+alert(uploadResult.message || "Image upload failed");
+
+return;
+
+}
+
+
+
+imageUrl =
+uploadResult.url;
+
+
+}
+
+
+
+
+const url =
+editing
 
 ?
 
@@ -229,7 +314,8 @@ const url = editing
 
 
 
-const method = editing
+const method =
+editing
 
 ?
 
@@ -239,14 +325,49 @@ const method = editing
 
 "POST";
 
+let slug = form.name
+.toLowerCase()
+.trim()
+.replace(/\s+/g,"-");
 
+
+let productId =
+slug + "-" + Date.now();
+
+
+// keep existing values during edit
+if(editing){
+
+const existingProduct =
+products.find(
+(product)=>product.slug===editing
+);
+
+
+if(existingProduct){
+
+slug =
+existingProduct.slug;
+
+
+productId =
+existingProduct.productId;
+
+}
+
+}
 
 
 
 const res =
-await fetch(url,{
+await fetch(
+
+url,
+
+{
 
 method,
+
 
 headers:{
 
@@ -255,15 +376,35 @@ headers:{
 },
 
 
-body:JSON.stringify(form)
+body:JSON.stringify({
+
+...form,
+
+productId,
+
+slug,
+
+price:Number(form.price),
+
+originalPrice:Number(form.originalPrice),
+
+stock:Number(form.stock),
+
+images:imageUrl
+
+})
+
+}
+
+);
 
 
-});
 
 
 
 const data =
 await res.json();
+
 
 
 
@@ -273,7 +414,11 @@ if(data.success){
 setForm(emptyForm);
 
 
+setSelectedImage(null);
+
+
 setEditing(null);
+
 
 
 loadProducts();
@@ -291,39 +436,40 @@ loadProducts();
 
 
 
-function editProduct(product:Product){
+function editProduct(
+product:Product
+){
+
+    setSelectedImage(null);
 
 
-setEditing(product.slug);
+setEditing(
+product.slug
+);
+
 
 
 setForm({
 
-productId:product.productId,
-
 name:product.name,
-
-slug:product.slug,
 
 category:product.category,
 
-price:product.price,
+price:String(product.price),
 
-originalPrice:product.originalPrice,
+originalPrice:String(product.originalPrice || ""),
 
 images:product.images,
 
 description:product.description,
 
-stock:product.stock,
+stock:String(product.stock),
 
 featured:product.featured,
 
 bestseller:product.bestseller
 
-
 });
-
 
 }
 
@@ -333,7 +479,10 @@ bestseller:product.bestseller
 
 
 
-async function deleteProduct(slug:string){
+async function deleteProduct(
+slug:string
+){
+
 
 
 await fetch(
@@ -350,10 +499,12 @@ method:"DELETE"
 
 
 
-loadProducts();
+await loadProducts();
 
 
 }
+
+
 
 
 
@@ -364,10 +515,11 @@ loadProducts();
 return(
 
 
-<div className="max-w-7xl mx-auto px-5 py-10">
+<div className="mx-auto max-w-7xl px-4 py-10">
 
 
-<h1 className="text-3xl font-bold mb-8">
+
+<h1 className="mb-8 text-3xl font-bold">
 
 Product Management
 
@@ -377,17 +529,24 @@ Product Management
 
 
 
-<div className="border rounded-xl p-6 mb-10">
+<div className="mb-10 rounded-xl border p-6">
 
 
-<h2 className="text-xl font-bold mb-5">
+
+<h2 className="mb-5 text-xl font-bold">
 
 {
+
 editing
+
 ?
+
 "Edit Product"
+
 :
+
 "Add Product"
+
 }
 
 </h2>
@@ -398,148 +557,147 @@ editing
 
 <div className="grid gap-4">
 
-
 <input
-
-name="productId"
-
-value={form.productId}
-
-onChange={handleChange}
-
-placeholder="Product ID"
-
-className="border p-3 rounded"
-
-/>
-
-
-
-<input
-
 name="name"
-
 value={form.name}
-
 onChange={handleChange}
-
-placeholder="Name"
-
-className="border p-3 rounded"
-
+placeholder="Product Name"
+className="rounded border p-3"
 />
 
 
-
 <input
-
-name="slug"
-
-value={form.slug}
-
-onChange={handleChange}
-
-placeholder="Slug"
-
-className="border p-3 rounded"
-
-/>
-
-
-
-<input
-
 name="category"
-
 value={form.category}
-
 onChange={handleChange}
-
 placeholder="Category"
-
-className="border p-3 rounded"
-
+className="rounded border p-3"
 />
 
 
 
 <input
-
 name="price"
-
 value={form.price}
-
 onChange={handleChange}
-
 placeholder="Price"
-
-className="border p-3 rounded"
-
+className="rounded border p-3"
 />
 
 
 
 <input
-
 name="originalPrice"
-
 value={form.originalPrice}
-
 onChange={handleChange}
-
 placeholder="Original Price"
-
-className="border p-3 rounded"
-
+className="rounded border p-3"
 />
 
 
 
 <input
-
 name="stock"
-
 value={form.stock}
-
 onChange={handleChange}
-
 placeholder="Stock"
-
-className="border p-3 rounded"
-
+className="rounded border p-3"
 />
 
+
+
+<label
+className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 transition hover:bg-slate-100">
+<div className="text-center">
+<div className="text-4xl">
+📷
+</div>
+
+
+<p className="mt-2 font-semibold">
+{
+selectedImage
+?
+selectedImage.name
+:
+"Upload Product Image"
+}
+</p>
+
+
+<p className="mt-1 text-sm text-slate-500">
+Click to choose JPG / PNG image
+</p>
+
+
+</div>
 
 
 <input
 
-name="images"
+type="file"
 
-value={form.images}
+accept="image/*"
 
-onChange={handleChange}
+onChange={(e)=>{
 
-placeholder="Image path"
+if(e.target.files){
 
-className="border p-3 rounded"
+setSelectedImage(
+e.target.files[0]
+);
+
+}
+
+}}
+
+className="hidden"
 
 />
+
+
+</label>
+
+{
+    selectedImage && (
+        <Image
+        src={URL.createObjectURL(selectedImage)}
+        alt="Selected"
+        width={128}
+        height={128}
+        className="mt-2 h-32 w-32 object-cover"
+        />
+    )
+}
+
+{!selectedImage && form.images && (
+
+<Image
+
+src={form.images}
+
+alt="Current product"
+
+width={128}
+
+height={128}
+
+className="mt-3 rounded-lg object-cover"
+
+/>
+
+)}
 
 
 
 <textarea
-
 name="description"
-
 value={form.description}
-
 onChange={handleChange}
-
 placeholder="Description"
-
-className="border p-3 rounded"
-
+className="rounded border p-3"
 />
+
 
 
 
@@ -547,7 +705,7 @@ className="border p-3 rounded"
 
 onClick={saveProduct}
 
-className="bg-black text-white rounded py-3"
+className="rounded bg-black py-3 text-white"
 
 >
 
@@ -572,16 +730,18 @@ Save Product
 <div className="space-y-5">
 
 
+
 {
 
 products.map(product=>(
+
 
 
 <div
 
 key={product._id}
 
-className="border rounded-xl p-5 flex justify-between items-center"
+className="flex flex-col gap-4 rounded-xl border p-5 md:flex-row md:items-center md:justify-between"
 
 >
 
@@ -590,7 +750,7 @@ className="border rounded-xl p-5 flex justify-between items-center"
 <div>
 
 
-<h2 className="font-bold text-lg">
+<h2 className="text-lg font-bold">
 
 {product.name}
 
@@ -598,23 +758,17 @@ className="border rounded-xl p-5 flex justify-between items-center"
 
 
 <p>
-
 Category: {product.category}
-
 </p>
 
 
 <p>
-
 Price: ₹{product.price}
-
 </p>
 
 
 <p>
-
 Stock: {product.stock}
-
 </p>
 
 
@@ -628,11 +782,12 @@ Stock: {product.stock}
 <div className="flex gap-3">
 
 
+
 <button
 
 onClick={()=>editProduct(product)}
 
-className="bg-blue-600 text-white px-4 py-2 rounded"
+className="rounded bg-blue-600 px-4 py-2 text-white"
 
 >
 
@@ -642,11 +797,11 @@ Edit
 
 
 
+
+
 <button
-
 onClick={()=>deleteProduct(product.slug)}
-
-className="bg-red-600 text-white px-4 py-2 rounded"
+className="rounded bg-red-600 px-4 py-2 text-white"
 
 >
 
@@ -655,21 +810,27 @@ Delete
 </button>
 
 
+
+
 </div>
 
 
 
+
 </div>
+
 
 
 ))
-
 
 }
 
 
 
 </div>
+
+
+
 
 
 </div>
